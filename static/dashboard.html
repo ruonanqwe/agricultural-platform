@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>数据仪表盘 - 农产品市场价格管理平台</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/date-fns@2.29.3/index.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <!-- 导航栏 -->
+        <nav class="navbar">
+            <div class="nav-brand">
+                <i class="fas fa-chart-line"></i>
+                <span>数据仪表盘</span>
+            </div>
+            <div class="nav-links">
+                <a href="/"><i class="fas fa-home"></i> 首页</a>
+                <a href="/static/dashboard.html" class="active"><i class="fas fa-chart-bar"></i> 仪表盘</a>
+                <a href="/#reports"><i class="fas fa-file-alt"></i> 报告</a>
+                <a href="/#management"><i class="fas fa-cog"></i> 管理</a>
+            </div>
+        </nav>
+
+        <!-- 加载状态 -->
+        <div id="loadingIndicator" class="loading-overlay">
+            <div class="loading-spinner">
+                <i class="fas fa-spinner fa-spin"></i>
+                <p>正在加载数据...</p>
+            </div>
+        </div>
+
+        <!-- 仪表盘内容 -->
+        <div class="dashboard-container">
+            <!-- 标题 -->
+            <h1>🌾 农产品市场数据仪表盘</h1>
+
+            <!-- 刷新按钮 -->
+            <div style="text-align: center; margin-bottom: 2rem;">
+                <button class="btn-refresh" onclick="refreshDashboard()">
+                    🔄 刷新数据
+                </button>
+            </div>
+
+            <!-- 概览卡片 -->
+            <div class="overview-cards">
+                <div class="card overview-card">
+                    <div class="card-icon">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <div class="card-content">
+                        <h3>价格指数</h3>
+                        <div class="metric-value" id="latestPriceIndex">--</div>
+                        <div class="metric-change" id="priceIndexChange">--</div>
+                    </div>
+                </div>
+
+                <div class="card overview-card">
+                    <div class="card-icon">
+                        <i class="fas fa-carrot"></i>
+                    </div>
+                    <div class="card-content">
+                        <h3>蔬菜均价</h3>
+                        <div class="metric-value" id="latestVegPrice">--</div>
+                        <div class="metric-change" id="vegPriceChange">--</div>
+                    </div>
+                </div>
+
+                <div class="card overview-card">
+                    <div class="card-icon">
+                        <i class="fas fa-apple-alt"></i>
+                    </div>
+                    <div class="card-content">
+                        <h3>水果均价</h3>
+                        <div class="metric-value" id="latestFruitPrice">--</div>
+                        <div class="metric-change" id="fruitPriceChange">--</div>
+                    </div>
+                </div>
+
+                <div class="card overview-card">
+                    <div class="card-icon">
+                        <i class="fas fa-drumstick-bite"></i>
+                    </div>
+                    <div class="card-content">
+                        <h3>猪肉价格</h3>
+                        <div class="metric-value" id="latestMeatPrice">--</div>
+                        <div class="metric-change" id="meatPriceChange">--</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 图表区域 -->
+            <div class="charts-container">
+                <!-- 价格指数趋势图 -->
+                <div class="card chart-card">
+                    <div class="card-header">
+                        <h3><i class="fas fa-chart-line"></i> 农产品批发价格指数趋势</h3>
+                        <div class="chart-controls">
+                            <button class="btn btn-sm btn-outline-primary" onclick="refreshChart('priceIndex')">
+                                <i class="fas fa-sync-alt"></i> 刷新
+                            </button>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <canvas id="priceIndexChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- 各类别价格趋势图 -->
+                <div class="card chart-card">
+                    <div class="card-header">
+                        <h3><i class="fas fa-chart-area"></i> 各类别价格趋势</h3>
+                        <div class="chart-controls">
+                            <select id="categorySelect" onchange="updateCategoryChart()">
+                                <option value="all">全部类别</option>
+                                <option value="vegetables">蔬菜</option>
+                                <option value="fruits">水果</option>
+                                <option value="meat">畜产品</option>
+                                <option value="aquatic">水产品</option>
+                            </select>
+                            <button class="btn btn-sm btn-outline-primary" onclick="refreshChart('category')">
+                                <i class="fas fa-sync-alt"></i> 刷新
+                            </button>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <canvas id="categoryChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- 重点产品价格对比 -->
+                <div class="card chart-card">
+                    <div class="card-header">
+                        <h3><i class="fas fa-chart-bar"></i> 重点产品价格对比</h3>
+                        <div class="chart-controls">
+                            <button class="btn btn-sm btn-outline-primary" onclick="refreshChart('products')">
+                                <i class="fas fa-sync-alt"></i> 刷新
+                            </button>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <canvas id="productsChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- 价格波动分析 -->
+                <div class="card chart-card">
+                    <div class="card-header">
+                        <h3><i class="fas fa-chart-pie"></i> 价格波动分析</h3>
+                        <div class="chart-controls">
+                            <button class="btn btn-sm btn-outline-primary" onclick="refreshChart('volatility')">
+                                <i class="fas fa-sync-alt"></i> 刷新
+                            </button>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="volatility-container">
+                            <div class="volatility-section">
+                                <h4><i class="fas fa-arrow-up text-success"></i> 涨幅前五</h4>
+                                <div id="topGainers" class="volatility-list"></div>
+                            </div>
+                            <div class="volatility-section">
+                                <h4><i class="fas fa-arrow-down text-danger"></i> 跌幅前五</h4>
+                                <div id="topLosers" class="volatility-list"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 数据摘要 -->
+            <div class="summary-section">
+                <div class="card">
+                    <div class="card-header">
+                        <h3><i class="fas fa-info-circle"></i> 数据摘要</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="summary-grid">
+                            <div class="summary-item">
+                                <label>数据时间范围：</label>
+                                <span id="dateRange">--</span>
+                            </div>
+                            <div class="summary-item">
+                                <label>报告总数：</label>
+                                <span id="totalReports">--</span>
+                            </div>
+                            <div class="summary-item">
+                                <label>最后更新：</label>
+                                <span id="lastUpdate">--</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 消息提示 -->
+    <div id="messageContainer" class="message-container"></div>
+
+    <script src="/static/js/dashboard.js"></script>
+</body>
+</html>

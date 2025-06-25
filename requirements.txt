@@ -1,0 +1,104 @@
+# Web框架
+fastapi==0.104.1
+uvicorn[standard]==0.24.0
+starlette==0.27.0
+
+# 数据处理
+pandas==2.1.3
+numpy==1.25.2
+openpyxl==3.1.2
+
+# 网络请求和爬虫
+requests==2.31.0
+httpx==0.25.2
+beautifulsoup4==4.12.2
+lxml==4.9.3
+selenium==4.15.2
+
+# 数据库
+psycopg2-binary==2.9.9
+sqlalchemy==2.0.23
+alembic==1.12.1
+
+# 任务调度
+schedule==1.2.0
+celery==5.3.4
+redis==5.0.1
+
+# 数据可视化
+matplotlib==3.8.2
+plotly==5.17.0
+seaborn==0.13.0
+
+# 日期时间处理
+python-dateutil==2.8.2
+pytz==2023.3
+
+# 配置管理
+python-dotenv==1.0.0
+pydantic==2.5.0
+pydantic-settings==2.1.0
+
+# 日志
+loguru==0.7.2
+
+# 文件处理
+python-multipart==0.0.6
+aiofiles==23.2.1
+
+# 模板引擎
+jinja2==3.1.2
+
+# HTTP客户端
+aiohttp==3.9.1
+
+# 数据验证
+marshmallow==3.20.1
+
+# 缓存
+python-memcached==1.62
+
+# 加密
+cryptography==41.0.7
+
+# 工具库
+click==8.1.7
+rich==13.7.0
+tqdm==4.66.1
+
+# 测试
+pytest==7.4.3
+pytest-asyncio==0.21.1
+pytest-cov==4.1.0
+
+# 开发工具
+black==23.11.0
+flake8==6.1.0
+isort==5.12.0
+
+# API文档
+swagger-ui-bundle==0.0.9
+
+# 时间序列分析
+statsmodels==0.14.0
+scikit-learn==1.3.2
+
+# Excel处理
+xlsxwriter==3.1.9
+
+# 图像处理
+Pillow==10.1.0
+
+# 异步支持
+asyncio==3.4.3
+aioredis==2.0.1
+
+# 监控
+prometheus-client==0.19.0
+
+# 邮件发送
+smtplib==3.11.0
+
+# 文档生成
+mkdocs==1.5.3
+mkdocs-material==9.4.8

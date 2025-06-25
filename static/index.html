@@ -1,0 +1,649 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>农产品市场价格管理平台</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+</head>
+<body>
+    <div id="app">
+        <!-- 侧边栏 -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">
+                    <i class="fas fa-seedling"></i>
+                    <h2>农产品平台</h2>
+                </div>
+                <button class="sidebar-toggle" onclick="toggleSidebar()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+
+            <nav class="sidebar-nav">
+                <ul class="nav-list">
+                    <li class="nav-item">
+                        <a href="#dashboard" class="nav-link active" onclick="showSection('dashboard')">
+                            <i class="fas fa-tachometer-alt"></i>
+                            <span>数据概览</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#trends" class="nav-link" onclick="showSection('trends')">
+                            <i class="fas fa-chart-area"></i>
+                            <span>趋势仪表板</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#price-data" class="nav-link" onclick="showSection('price-data')">
+                            <i class="fas fa-chart-line"></i>
+                            <span>价格数据</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#reports" class="nav-link" onclick="showSection('reports')">
+                            <i class="fas fa-file-alt"></i>
+                            <span>分析报告</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#crawler-control" class="nav-link" onclick="showSection('crawler-control')">
+                            <i class="fas fa-cogs"></i>
+                            <span>爬虫控制</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#settings" class="nav-link" onclick="showSection('settings')">
+                            <i class="fas fa-cog"></i>
+                            <span>系统设置</span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </aside>
+
+        <!-- 主要内容区域 -->
+        <main class="main-content">
+            <!-- 顶部导航栏 -->
+            <header class="header">
+                <div class="header-content">
+                    <button class="sidebar-toggle mobile-toggle" onclick="toggleSidebar()">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                    <div class="header-title">
+                        <h1 id="pageTitle">数据概览</h1>
+                    </div>
+                    <div class="header-actions">
+                        <button class="btn btn-primary" onclick="refreshCurrentSection()">
+                            <i class="fas fa-sync-alt"></i> 刷新
+                        </button>
+                        <button class="btn btn-success" onclick="exportCurrentData()">
+                            <i class="fas fa-download"></i> 导出
+                        </button>
+                    </div>
+                </div>
+            </header>
+
+            <!-- 内容区域 -->
+            <div class="content-wrapper">
+                <!-- 数据概览页面 -->
+                <section id="dashboard-section" class="content-section active">
+                    <!-- 统计卡片 -->
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-icon">
+                                <i class="fas fa-database"></i>
+                            </div>
+                            <div class="stat-content">
+                                <h3 id="totalRecords">-</h3>
+                                <p>总记录数</p>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon">
+                                <i class="fas fa-store"></i>
+                            </div>
+                            <div class="stat-content">
+                                <h3 id="totalMarkets">-</h3>
+                                <p>市场数量</p>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon">
+                                <i class="fas fa-leaf"></i>
+                            </div>
+                            <div class="stat-content">
+                                <h3 id="totalVarieties">-</h3>
+                                <p>品种数量</p>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon">
+                                <i class="fas fa-robot"></i>
+                            </div>
+                            <div class="stat-content">
+                                <h3 id="crawlerStatus">-</h3>
+                                <p>爬虫状态</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 快速操作 -->
+                    <div class="quick-actions">
+                        <div class="panel-header">
+                            <h2><i class="fas fa-bolt"></i> 快速操作</h2>
+                        </div>
+                        <div class="action-grid">
+                            <button class="action-card" onclick="showSection('price-data')">
+                                <i class="fas fa-chart-line"></i>
+                                <h3>查看价格数据</h3>
+                                <p>浏览最新的农产品价格信息</p>
+                            </button>
+                            <button class="action-card" onclick="showSection('reports')">
+                                <i class="fas fa-file-alt"></i>
+                                <h3>分析报告</h3>
+                                <p>查看农业部发布的分析报告</p>
+                            </button>
+                            <button class="action-card" onclick="startCrawler()">
+                                <i class="fas fa-play"></i>
+                                <h3>启动爬虫</h3>
+                                <p>开始爬取最新数据</p>
+                            </button>
+                            <button class="action-card" onclick="exportData()">
+                                <i class="fas fa-download"></i>
+                                <h3>导出数据</h3>
+                                <p>下载价格数据到本地</p>
+                            </button>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 趋势仪表板页面 -->
+                <section id="trends-section" class="content-section">
+                    <div class="section-header">
+                        <h2><i class="fas fa-chart-area"></i> 趋势仪表板</h2>
+                        <p>基于分析报告的关键数据趋势可视化</p>
+                    </div>
+
+                    <!-- 仪表盘内容容器 -->
+                    <div class="dashboard-embed-container">
+                        <div class="dashboard-actions">
+                            <button class="btn btn-primary" onclick="openDashboard()">
+                                <i class="fas fa-external-link-alt"></i> 打开完整仪表盘
+                            </button>
+                            <button class="btn btn-outline-primary" onclick="refreshDashboardData()">
+                                <i class="fas fa-sync-alt"></i> 刷新数据
+                            </button>
+                        </div>
+
+                        <!-- 关键指标预览 -->
+                        <div class="dashboard-preview">
+                            <div class="preview-cards">
+                                <div class="preview-card">
+                                    <div class="card-icon price-index">
+                                        <i class="fas fa-chart-line"></i>
+                                    </div>
+                                    <div class="card-content">
+                                        <h3>价格指数</h3>
+                                        <div class="metric-value" id="dashboardPriceIndex">--</div>
+                                        <div class="metric-change" id="dashboardPriceIndexChange">--</div>
+                                    </div>
+                                </div>
+
+                                <div class="preview-card">
+                                    <div class="card-icon vegetables">
+                                        <i class="fas fa-carrot"></i>
+                                    </div>
+                                    <div class="card-content">
+                                        <h3>蔬菜均价</h3>
+                                        <div class="metric-value" id="dashboardVegPrice">--</div>
+                                        <div class="metric-change" id="dashboardVegChange">--</div>
+                                    </div>
+                                </div>
+
+                                <div class="preview-card">
+                                    <div class="card-icon fruits">
+                                        <i class="fas fa-apple-alt"></i>
+                                    </div>
+                                    <div class="card-content">
+                                        <h3>水果均价</h3>
+                                        <div class="metric-value" id="dashboardFruitPrice">--</div>
+                                        <div class="metric-change" id="dashboardFruitChange">--</div>
+                                    </div>
+                                </div>
+
+                                <div class="preview-card">
+                                    <div class="card-icon meat">
+                                        <i class="fas fa-drumstick-bite"></i>
+                                    </div>
+                                    <div class="card-content">
+                                        <h3>猪肉价格</h3>
+                                        <div class="metric-value" id="dashboardMeatPrice">--</div>
+                                        <div class="metric-change" id="dashboardMeatChange">--</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 简化图表预览 -->
+                            <div class="chart-preview">
+                                <div class="chart-container">
+                                    <h4><i class="fas fa-chart-line"></i> 价格指数趋势预览</h4>
+                                    <canvas id="previewChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 数据摘要 -->
+                        <div class="dashboard-summary">
+                            <div class="summary-item">
+                                <label>数据时间范围：</label>
+                                <span id="dashboardDateRange">--</span>
+                            </div>
+                            <div class="summary-item">
+                                <label>报告总数：</label>
+                                <span id="dashboardTotalReports">--</span>
+                            </div>
+                            <div class="summary-item">
+                                <label>最后更新：</label>
+                                <span id="dashboardLastUpdate">--</span>
+                            </div>
+                        </div>
+                    </div>
+
+                </section>
+
+                <!-- 价格数据页面 -->
+                <section id="price-data-section" class="content-section">
+                    <!-- 搜索面板 -->
+                    <div class="search-panel">
+                        <div class="panel-header">
+                            <h2><i class="fas fa-search"></i> 数据搜索</h2>
+                        </div>
+                        <div class="panel-content">
+                            <form id="searchForm" class="search-form">
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label for="province">省份</label>
+                                        <select id="province" name="province">
+                                            <option value="">全部省份</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="variety">品种</label>
+                                        <select id="variety" name="variety">
+                                            <option value="">全部品种</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="market">市场</label>
+                                        <select id="market" name="market">
+                                            <option value="">全部市场</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label for="dateFrom">开始日期</label>
+                                        <input type="date" id="dateFrom" name="date_from">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="dateTo">结束日期</label>
+                                        <input type="date" id="dateTo" name="date_to">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="limit">记录数量</label>
+                                        <select id="limit" name="limit">
+                                            <option value="50">50条</option>
+                                            <option value="100" selected>100条</option>
+                                            <option value="200">200条</option>
+                                            <option value="500">500条</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="form-actions">
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="fas fa-search"></i> 搜索
+                                    </button>
+                                    <button type="button" class="btn btn-secondary" onclick="resetSearch()">
+                                        <i class="fas fa-undo"></i> 重置
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+
+                    <!-- 数据表格 -->
+                    <div class="data-panel">
+                        <div class="panel-header">
+                            <h2><i class="fas fa-table"></i> 价格数据列表</h2>
+                            <div class="panel-actions">
+                                <span id="dataCount" class="data-count">共 0 条记录</span>
+                            </div>
+                        </div>
+                        <div class="panel-content">
+                            <div class="table-container">
+                                <table id="dataTable" class="data-table">
+                                    <thead>
+                                        <tr>
+                                            <th>省份</th>
+                                            <th>市场名称</th>
+                                            <th>品种名称</th>
+                                            <th>最低价</th>
+                                            <th>平均价</th>
+                                            <th>最高价</th>
+                                            <th>单位</th>
+                                            <th>交易日期</th>
+                                            <th>更新时间</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="dataTableBody">
+                                        <tr>
+                                            <td colspan="9" class="no-data">暂无数据</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 分析报告页面 -->
+                <section id="reports-section" class="content-section">
+                    <!-- 分析报告列表 -->
+                    <div class="data-panel">
+                        <div class="panel-header">
+                            <h2><i class="fas fa-file-alt"></i> 分析报告列表</h2>
+                            <div class="panel-actions">
+                                <span id="reportCount" class="data-count">共 0 篇报告</span>
+                                <button class="btn btn-primary btn-sm" onclick="refreshReports()">
+                                    <i class="fas fa-sync-alt"></i> 刷新报告
+                                </button>
+                                <button class="btn btn-success btn-sm" onclick="exportReports()">
+                                    <i class="fas fa-download"></i> 导出报告
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- 报告类型切换 -->
+                        <div class="report-type-filter">
+                            <div class="filter-group">
+                                <label>报告类型：</label>
+                                <div class="btn-group">
+                                    <button class="btn btn-sm btn-outline-primary report-type-btn active"
+                                            data-report-type="all" onclick="switchReportType('all')">
+                                        <i class="fas fa-list"></i> 全部 (<span id="totalReportsCount">0</span>)
+                                    </button>
+                                    <button class="btn btn-sm btn-outline-primary report-type-btn"
+                                            data-report-type="daily" onclick="switchReportType('daily')">
+                                        <i class="fas fa-calendar-day"></i> 日报 (<span id="dailyReportsCount">0</span>)
+                                    </button>
+                                    <button class="btn btn-sm btn-outline-primary report-type-btn"
+                                            data-report-type="monthly" onclick="switchReportType('monthly')">
+                                        <i class="fas fa-calendar-alt"></i> 月报 (<span id="monthlyReportsCount">0</span>)
+                                    </button>
+                                    <button class="btn btn-sm btn-outline-primary report-type-btn"
+                                            data-report-type="yearly" onclick="switchReportType('yearly')">
+                                        <i class="fas fa-calendar"></i> 年报 (<span id="yearlyReportsCount">0</span>)
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="panel-content">
+                            <div class="table-container">
+                                <table id="reportTable" class="data-table">
+                                    <thead>
+                                        <tr>
+                                            <th>报告标题</th>
+                                            <th>报告类型</th>
+                                            <th>发布时间</th>
+                                            <th>来源</th>
+                                            <th>爬取时间</th>
+                                            <th>操作</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="reportTableBody">
+                                        <tr>
+                                            <td colspan="6" class="no-data">暂无报告数据</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <!-- 分页控件 -->
+                            <div id="reportPagination" class="pagination-container hidden">
+                                <div class="pagination-info">
+                                    <span id="reportPageInfo">第 1 页，共 1 页</span>
+                                    <span id="reportTotalInfo">总计 0 条记录</span>
+                                </div>
+                                <div class="pagination-controls">
+                                    <button class="btn btn-sm btn-secondary" id="reportFirstPage" onclick="goToReportPage(1)">
+                                        <i class="fas fa-angle-double-left"></i> 首页
+                                    </button>
+                                    <button class="btn btn-sm btn-secondary" id="reportPrevPage" onclick="goToReportPage('prev')">
+                                        <i class="fas fa-angle-left"></i> 上一页
+                                    </button>
+                                    <span class="page-numbers" id="reportPageNumbers"></span>
+                                    <button class="btn btn-sm btn-secondary" id="reportNextPage" onclick="goToReportPage('next')">
+                                        下一页 <i class="fas fa-angle-right"></i>
+                                    </button>
+                                    <button class="btn btn-sm btn-secondary" id="reportLastPage" onclick="goToReportPage('last')">
+                                        末页 <i class="fas fa-angle-double-right"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 爬虫控制页面 -->
+                <section id="crawler-control-section" class="content-section">
+                    <div class="control-panel">
+                        <div class="panel-header">
+                            <h2><i class="fas fa-cogs"></i> 爬虫控制面板</h2>
+                        </div>
+                        <div class="panel-content">
+                            <div class="control-group">
+                                <h3>价格数据爬虫</h3>
+                                <div class="control-buttons">
+                                    <button class="btn btn-success" onclick="startCrawler()">
+                                        <i class="fas fa-play"></i> 启动价格爬虫
+                                    </button>
+                                    <button class="btn btn-danger" onclick="stopCrawler()">
+                                        <i class="fas fa-stop"></i> 停止价格爬虫
+                                    </button>
+                                    <button class="btn btn-info" onclick="getCrawlerStatus()">
+                                        <i class="fas fa-info-circle"></i> 价格爬虫状态
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div class="control-group">
+                                <h3>分析报告爬虫</h3>
+                                <div class="control-buttons">
+                                    <button class="btn btn-success" onclick="startReportCrawler()">
+                                        <i class="fas fa-file-alt"></i> 启动报告爬虫
+                                    </button>
+                                    <button class="btn btn-danger" onclick="stopReportCrawler()">
+                                        <i class="fas fa-stop"></i> 停止报告爬虫
+                                    </button>
+                                    <button class="btn btn-info" onclick="getReportCrawlerStatus()">
+                                        <i class="fas fa-info-circle"></i> 报告爬虫状态
+                                    </button>
+                                </div>
+
+                                <!-- 立即爬取选项 -->
+                                <div class="crawl-options">
+                                    <h4>立即爬取报告</h4>
+                                    <div class="form-group">
+                                        <label>
+                                            <input type="checkbox" id="fullCrawlMode" checked>
+                                            完整爬取模式（爬取所有历史数据）
+                                        </label>
+                                        <small class="help-text">
+                                            勾选：爬取所有可用的历史报告数据<br>
+                                            不勾选：只爬取最新的报告数据
+                                        </small>
+                                    </div>
+                                    <div class="control-buttons">
+                                        <button class="btn btn-primary" onclick="crawlReportsOnce()">
+                                            <i class="fas fa-download"></i> 开始爬取
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 系统设置页面 -->
+                <section id="settings-section" class="content-section">
+                    <div class="settings-panel">
+                        <div class="panel-header">
+                            <h2><i class="fas fa-cog"></i> 系统设置</h2>
+                        </div>
+                        <div class="panel-content">
+                            <div class="settings-group">
+                                <h3>爬虫配置</h3>
+                                <div class="setting-item">
+                                    <label>爬取间隔（分钟）</label>
+                                    <input type="number" value="30" min="5" max="1440">
+                                </div>
+                                <div class="setting-item">
+                                    <label>超时时间（秒）</label>
+                                    <input type="number" value="30" min="10" max="300">
+                                </div>
+                                <div class="setting-item">
+                                    <label>重试次数</label>
+                                    <input type="number" value="3" min="1" max="10">
+                                </div>
+                            </div>
+
+                            <div class="settings-group">
+                                <h3>数据管理</h3>
+                                <div class="setting-item">
+                                    <label>数据保留天数</label>
+                                    <input type="number" value="30" min="1" max="365">
+                                </div>
+                                <div class="setting-item">
+                                    <label>自动备份</label>
+                                    <input type="checkbox" checked>
+                                </div>
+                            </div>
+
+                            <div class="settings-actions">
+                                <button class="btn btn-primary">
+                                    <i class="fas fa-save"></i> 保存设置
+                                </button>
+                                <button class="btn btn-secondary">
+                                    <i class="fas fa-undo"></i> 重置
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </main>
+
+        <!-- 报告详情模态框 -->
+        <div id="reportModal" class="modal hidden">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 id="modalReportTitle">报告详情</h2>
+                    <button class="modal-close" onclick="closeReportModal()">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="report-meta">
+                        <div class="meta-item">
+                            <label>报告类型：</label>
+                            <span id="modalReportType">-</span>
+                        </div>
+                        <div class="meta-item">
+                            <label>发布时间：</label>
+                            <span id="modalReportDate">-</span>
+                        </div>
+                        <div class="meta-item">
+                            <label>来源：</label>
+                            <span id="modalReportSource">-</span>
+                        </div>
+                    </div>
+
+                    <div class="report-content">
+                        <div class="content-section">
+                            <h3>总体结论</h3>
+                            <div id="modalReportConclusion" class="content-text">-</div>
+                        </div>
+
+                        <div class="content-section">
+                            <h3>畜产品价格</h3>
+                            <div id="modalAnimalConclusion" class="content-text">-</div>
+                        </div>
+
+                        <div class="content-section">
+                            <h3>水产品价格</h3>
+                            <div id="modalAquaticConclusion" class="content-text">-</div>
+                        </div>
+
+                        <div class="content-section">
+                            <h3>蔬菜价格</h3>
+                            <div id="modalVegetablesConclusion" class="content-text">-</div>
+                        </div>
+
+                        <div class="content-section">
+                            <h3>水果价格</h3>
+                            <div id="modalFruitsConclusion" class="content-text">-</div>
+                        </div>
+
+                        <div class="content-section">
+                            <h3>价格指数</h3>
+                            <div id="modalIndexConclusion" class="content-text">-</div>
+                        </div>
+
+                        <div class="content-section">
+                            <h3>涨跌幅分析</h3>
+                            <div id="modalIncOrReduRange" class="content-text">-</div>
+                        </div>
+
+                        <div class="content-section">
+                            <h3>完整内容</h3>
+                            <div id="modalReportContent" class="content-html">-</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" onclick="closeReportModal()">
+                        <i class="fas fa-times"></i> 关闭
+                    </button>
+                    <button class="btn btn-primary" onclick="printReport()">
+                        <i class="fas fa-print"></i> 打印
+                    </button>
+                    <button class="btn btn-success" onclick="exportCurrentReport()">
+                        <i class="fas fa-download"></i> 导出
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 加载提示 -->
+        <div id="loading" class="loading hidden">
+            <div class="loading-content">
+                <div class="spinner"></div>
+                <p>加载中...</p>
+            </div>
+        </div>
+
+        <!-- 消息提示 -->
+        <div id="message" class="message hidden">
+            <div class="message-content">
+                <span class="message-text"></span>
+                <button class="message-close" onclick="hideMessage()">×</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="/static/js/app.js"></script>
+</body>
+</html>
